@@ -28,7 +28,8 @@ namespace km_applicant_backend.Controllers
 
         // GET api/todo/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Todo>> GetTodoByIdAsync(int id)
+        //GetTodoById
+        public async Task<ActionResult<Todo>> Get(int id)
         {
             var resultTodo = await todoRepository.GetTodoByIdAsync(id);
             if (resultTodo == null) return NotFound();
@@ -44,7 +45,7 @@ namespace km_applicant_backend.Controllers
                 return BadRequest();
             }
             var resultTodo = await todoRepository.CreateTodoAsync(todo);
-            return CreatedAtAction(nameof(GetTodoByIdAsync), new { id = resultTodo.id }, resultTodo);
+            return CreatedAtAction(nameof(Get), new { resultTodo.id }, resultTodo);
         }
 
         // PUT api/todo/5
