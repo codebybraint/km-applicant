@@ -1,6 +1,5 @@
 ﻿## Karya Murni - Rad4m Backend Applicant Test 
 ## Todo List Api : Ardianto Widjanarko
-#
 ## Table of contents
 * [Introduction](#introduction)
 * [Building](#Building)
