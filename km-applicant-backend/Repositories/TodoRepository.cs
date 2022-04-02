@@ -9,7 +9,7 @@ namespace km_applicant_backend.Repositories
     public class TodoRepository : ITodoRepository
     {
         private readonly TodoContext _context;
-        
+
         public TodoRepository(TodoContext context)
         {
             this._context = context;
@@ -22,6 +22,7 @@ namespace km_applicant_backend.Repositories
             return todo;
         }
 
+        // UpdateTodoAsync is just Task, will not return value
         public async Task DeleteTodoAsync(int id)
         {
             var _todo = await _context.Todos.FindAsync(id);
@@ -37,11 +38,13 @@ namespace km_applicant_backend.Repositories
         public async Task<Todo> GetTodoByIdAsync(int id)
         {
             return await _context.Todos.FindAsync(id);
-            
+
         }
 
         public async Task<IEnumerable<Todo>> GetIncomingTodoAsync(double additionalDay)
         {
+            // sql statement, to select all todos,
+            //where expiration date between now, until the given additional days
             var sql = "SELECT * FROM Todos WHERE " +
                 "expirationDate BETWEEN {0} AND {1}";
             return await _context.Todos.FromSqlRaw(sql, DateTime.Now, DateTime.Today.AddDays(additionalDay + 1)).ToListAsync();
@@ -61,6 +64,7 @@ namespace km_applicant_backend.Repositories
             return todo;
         }
 
+        // UpdateTodoAsync is just Task, will not return value
         public async Task UpdateTodoAsync(Todo todo)
         {
             _context.Entry(todo).State = EntityState.Modified;

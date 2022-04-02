@@ -9,10 +9,5 @@ namespace km_applicant_backend.Models
         public DateTime expirationDate { get; set; }
         public int percentageOfCompletion { get; set; }
 
-        public Todo()
-        {
-
-        }
-
     }
 }

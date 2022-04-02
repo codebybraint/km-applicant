@@ -10,11 +10,31 @@ using NUnit.Framework;
 
 namespace km_applicant_backend.test
 {
+    /** Unit Test class Variable Explanation
+     * In test classes, there will be some similar variable
+     * result       : result we get after execute the todoController, 
+                     it usually in the form ActionResult<Todo>
+                     in some cases IEnumerable<Todo>
+     
+     * value        : the return value from result, usually in the form Todo.class
+     
+     * randomTodo   : Fake Todo or dummy Todo, created for mock purpose
+                     Should contain right format, and value Todo
+    
+     * updateTodo   : Fake Todo, which created for update action mock, 
+                     updateTodo should be different from randomTodo
+
+     * In some cases there will be, this code executed, just to make sure todo exist,
+       before execute another function using this todo
+            _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomTodo.id))
+                .ReturnsAsync((Todo)randomTodo);
+     */
+
     public class TestTodoController
     {
         private Mock<ITodoRepository> _repository = new Mock<ITodoRepository>();
-        private readonly Random rand = new(); //to generate random value
-        private 
+        private readonly Random randomValue = new();
+        private
         string[] randomString =
         {
             "First", "Second", "Third",
@@ -25,25 +45,21 @@ namespace km_applicant_backend.test
         [SetUp]
         public void Setup()
         {
-
+            var controller = new TodoController(_repository.Object);
         }
 
         #region Testing : GetAllTodosAsync
-
         [Test]
         public async Task GetAllTodosAsync_WithExistingTodo_ReturnAllTodos()
         {
             //arrange
             var randomTodo = new[] { CreateRandomTodo(), CreateRandomTodo(), CreateRandomTodo() };
-
             _repository.Setup(_repo => _repo.GetAllTodosAsync())
                 .ReturnsAsync(randomTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
             var result = await controller.GetAllTodosAsync();
-
-            Console.WriteLine(result);
 
             //assert
             Assert.NotNull(result);
@@ -56,14 +72,14 @@ namespace km_applicant_backend.test
         public async Task GetTodoByIdAsync_WithExistingTodo_ReturnExpectedTodo()
         {
             //arrange
-            var j = rand.Next(10);
+            var randomId = randomValue.Next(10);
             Todo randomTodo = CreateRandomTodo();
-            _repository.Setup(_repo => _repo.GetTodoByIdAsync(j))
-                .ReturnsAsync((Todo) randomTodo);
+            _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomId))
+                .ReturnsAsync((Todo)randomTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = await controller.GetTodoByIdAsync(j);
+            var result = await controller.GetTodoByIdAsync(randomId);
             var value = (result as ActionResult<Todo>).Value;
 
             //asert
@@ -72,16 +88,16 @@ namespace km_applicant_backend.test
         }
 
         [Test]
-        public async Task GetTodoByIdAsync_WithNonExistingTodo_ReturnNotFound()
+        public async Task GetTodoByIdAsync_WithNonExistingId_ReturnNotFound()
         {
             //arrange
-            int j = rand.Next(10);
-            _repository.Setup(_repo => _repo.GetTodoByIdAsync(j))
+            int randomId = randomValue.Next(10);
+            _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomId))
                 .ReturnsAsync((Todo)null);
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = await controller.GetTodoByIdAsync(j);
+            var result = await controller.GetTodoByIdAsync(randomId);
             var value = (result as ActionResult<Todo>).Value;
 
             //assert
@@ -98,7 +114,7 @@ namespace km_applicant_backend.test
             //arrange
             Todo randomTodo = CreateRandomTodo();
             _repository.Setup(_repo => _repo.CreateTodoAsync(randomTodo))
-                .ReturnsAsync((Todo) randomTodo);
+                .ReturnsAsync((Todo)randomTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
@@ -106,11 +122,11 @@ namespace km_applicant_backend.test
             var value = (Todo)(result.Result as CreatedAtActionResult).Value;
 
             //assert
-            Assert.NotNull(value.id); 
-            Assert.NotNull(value.title); 
-            Assert.NotNull(value.expirationDate); 
-            Assert.LessOrEqual(value.percentageOfCompletion, 100); 
-            Assert.AreEqual(randomTodo, value); 
+            Assert.NotNull(value.id);
+            Assert.NotNull(value.title);
+            Assert.NotNull(value.expirationDate);
+            Assert.LessOrEqual(value.percentageOfCompletion, 100);
+            Assert.AreEqual(randomTodo, value);
 
         }
         [Test]
@@ -139,18 +155,17 @@ namespace km_applicant_backend.test
         {
             //arrange
             Todo randomTodo = CreateRandomTodo();
-            Todo _updated = UpdateRandomTodo();
-            _updated.id = randomTodo.id;
-
+            Todo updateTodo = UpdateRandomTodo();
+            updateTodo.id = randomTodo.id;
             var controller = new TodoController(_repository.Object);
 
             //act
-            var value = (await controller.UpdateTodoAsync(randomTodo.id, _updated) as ActionResult<Todo>).Value;
+            var value = (await controller.UpdateTodoAsync(randomTodo.id, updateTodo) as ActionResult<Todo>).Value;
 
             //assert
             Assert.NotNull(randomTodo.id);
-            Assert.AreEqual(value, _updated);
-            Assert.AreEqual(value.title, _updated.title);
+            Assert.AreEqual(value, updateTodo);
+            Assert.AreEqual(value.title, updateTodo.title);
             Assert.GreaterOrEqual(value.expirationDate, DateTime.Now);
             Assert.LessOrEqual(value.percentageOfCompletion, 100);
 
@@ -161,12 +176,11 @@ namespace km_applicant_backend.test
         {
             //arrange
             Todo randomTodo = CreateRandomTodo();
-            Todo _updated = CreateBadValueTodo();
-
+            Todo updateTodo = CreateBadValueTodo();
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = (await controller.UpdateTodoAsync(randomTodo.id, _updated) as ActionResult<Todo>);
+            var result = (await controller.UpdateTodoAsync(randomTodo.id, updateTodo) as ActionResult<Todo>);
 
             //assert
             Assert.IsNull(result.Value);
@@ -178,17 +192,16 @@ namespace km_applicant_backend.test
         public async Task UpdateTodoAsync_MissmatchTodoIdToUpdate_ReturnBadRequest()
         {
             //arrange
-            int j = rand.Next(10);
+            int randomId = randomValue.Next(10);
             Todo randomTodo = UpdateRandomTodo();
-
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = (await controller.UpdateTodoAsync(j, randomTodo) as ActionResult<Todo>);
+            var result = (await controller.UpdateTodoAsync(randomId, randomTodo) as ActionResult<Todo>);
 
             //assert
             Assert.IsNull(result.Value);
-            Assert.AreNotEqual(j, randomTodo.id);
+            Assert.AreNotEqual(randomId, randomTodo.id);
             result.Result.Should().BeOfType<BadRequestResult>();
 
         }
@@ -202,7 +215,6 @@ namespace km_applicant_backend.test
             Todo randomTodo = CreateRandomTodo();
             _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomTodo.id))
                 .ReturnsAsync((Todo)randomTodo);
-
             var controller = new TodoController(_repository.Object);
 
             //act
@@ -219,7 +231,6 @@ namespace km_applicant_backend.test
             Todo randomTodo = CreateRandomTodo();
             _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomTodo.id))
                 .ReturnsAsync((Todo)null);
-
             var controller = new TodoController(_repository.Object);
 
             //act
@@ -236,12 +247,12 @@ namespace km_applicant_backend.test
         {
             //arrange
             Todo randomTodo = CreateRandomTodo();
-            var _updated = randomTodo;
-            _updated.percentageOfCompletion = 100;
+            var updateTodo = randomTodo;
+            updateTodo.percentageOfCompletion = 100;
             _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomTodo.id))
                 .ReturnsAsync((Todo)randomTodo);
             _repository.Setup(_repo => _repo.MarkTodoAsDoneAsync(randomTodo))
-                .ReturnsAsync((Todo)_updated);
+                .ReturnsAsync((Todo)updateTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
@@ -258,13 +269,13 @@ namespace km_applicant_backend.test
         public async Task MarkTodoAsDoneAsync_WithNonExistingTodo_ReturnNotFound()
         {
             //arrange
-            int j = rand.Next(10);
-            _repository.Setup(_repo => _repo.GetTodoByIdAsync(j))
+            int randomId = randomValue.Next(10);
+            _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomId))
                 .ReturnsAsync((Todo)null);
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = await controller.MarkTodoAsDoneAsync(j);
+            var result = await controller.MarkTodoAsDoneAsync(randomId);
             var value = (result as ActionResult<Todo>).Value;
 
             //assert
@@ -278,19 +289,18 @@ namespace km_applicant_backend.test
         public async Task ChangePercentage_WithExistingTodoRightValue_ReturnExpectedTodo()
         {
             //arrange
-            var i = 20;
+            var updatedPercentage = 20;
             Todo randomTodo = CreateRandomTodo();
-            var _updated = randomTodo;
-            _updated.percentageOfCompletion = i;
+            var updateTodo = randomTodo;
+            updateTodo.percentageOfCompletion = updatedPercentage;
             _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomTodo.id))
                 .ReturnsAsync((Todo)randomTodo);
             _repository.Setup(_repo => _repo.ChangeTodoPercentageAsync(randomTodo, randomTodo.id))
-                .ReturnsAsync((Todo)_updated);
-
+                .ReturnsAsync((Todo)updateTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = await controller.ChangeTodoPercentageAsync(randomTodo.id, i);
+            var result = await controller.ChangeTodoPercentageAsync(randomTodo.id, updatedPercentage);
             var value = (result as ActionResult<Todo>).Value;
 
             //asert
@@ -301,26 +311,25 @@ namespace km_applicant_backend.test
             Assert.AreEqual(randomTodo.title, value.title);
             Assert.AreEqual(randomTodo.descriptions, value.descriptions);
             Assert.AreEqual(randomTodo.expirationDate, value.expirationDate);
-            Assert.AreEqual(20, result.Value.percentageOfCompletion);
+            Assert.AreEqual(updatedPercentage, result.Value.percentageOfCompletion);
         }
 
         [Test]
         public async Task ChangePercentage_WithBadValue_ReturnBadRequest()
         {
             //arrange
-            var i = 120;
+            var updatedPercentage = 120;
             Todo randomTodo = CreateRandomTodo();
-            var _updated = randomTodo;
-            _updated.percentageOfCompletion = i;
+            var updateTodo = randomTodo;
+            updateTodo.percentageOfCompletion = updatedPercentage;
             _repository.Setup(_repo => _repo.GetTodoByIdAsync(randomTodo.id))
                 .ReturnsAsync((Todo)randomTodo);
             _repository.Setup(_repo => _repo.ChangeTodoPercentageAsync(randomTodo, randomTodo.id))
-                .ReturnsAsync((Todo)_updated);
-
+                .ReturnsAsync((Todo)updateTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = await controller.ChangeTodoPercentageAsync(randomTodo.id, i);
+            var result = await controller.ChangeTodoPercentageAsync(randomTodo.id, updatedPercentage);
             var value = (result as ActionResult<Todo>).Value;
 
             //assert
@@ -334,15 +343,14 @@ namespace km_applicant_backend.test
         public async Task GetIncomingTodo_WithExistingTodo_ReturnAllTodos()
         {
             //arange
-            int j = rand.Next(10);
+            int randomDays = randomValue.Next(10);
             var randomTodo = new[] { CreateRandomTodo(), CreateRandomTodo(), CreateRandomTodo() };
-
-            _repository.Setup(_repo => _repo.GetIncomingTodoAsync(j))
+            _repository.Setup(_repo => _repo.GetIncomingTodoAsync(randomDays))
                 .ReturnsAsync(randomTodo);
             var controller = new TodoController(_repository.Object);
 
             //act
-            var result = await controller.GetIncomingTodoAsync(j);
+            var result = await controller.GetIncomingTodoAsync(randomDays);
 
             //assert
             Assert.IsNotNull(result);
@@ -353,11 +361,11 @@ namespace km_applicant_backend.test
         #region generate dummy todo
         private Todo CreateRandomTodo()
         {
-            var randTitle = rand.Next(randomString.Length);
-            var randDesc = rand.Next(randomString.Length);
+            var randTitle = randomValue.Next(randomString.Length);
+            var randDesc = randomValue.Next(randomString.Length);
             return new()
             {
-                id = rand.Next(10),
+                id = randomValue.Next(10),
                 title = randomString[randTitle],
                 descriptions = randomString[randDesc],
                 percentageOfCompletion = 0,
@@ -367,16 +375,16 @@ namespace km_applicant_backend.test
 
         private Todo UpdateRandomTodo()
         {
-            var randTitle = rand.Next(randomString.Length);
-            var randDesc = rand.Next(randomString.Length);
-            double rand_number = rand.Next(1,21);
+            var randTitle = randomValue.Next(randomString.Length);
+            var randDesc = randomValue.Next(randomString.Length);
+            double randNumber = randomValue.Next(1, 21);
             return new()
             {
-                id = rand.Next(10),
+                id = randomValue.Next(10),
                 title = randomString[randTitle],
                 descriptions = randomString[randDesc],
-                percentageOfCompletion = rand.Next(100),
-                expirationDate = DateTime.Now.AddDays(rand_number)
+                percentageOfCompletion = randomValue.Next(100),
+                expirationDate = DateTime.Now.AddDays(randNumber)
             };
         }
 

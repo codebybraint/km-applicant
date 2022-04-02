@@ -6,8 +6,6 @@ using km_applicant_backend.Models;
 using km_applicant_backend.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace km_applicant_backend.Controllers
 {
     [Route("api/[controller]")]
@@ -20,24 +18,24 @@ namespace km_applicant_backend.Controllers
             todoRepository = repository;
         }
 
-        // GET: api/
+        // GET: api/todo
         [HttpGet]
         public async Task<IEnumerable<Todo>> GetAllTodosAsync()
         {
-            var _todo = await todoRepository.GetAllTodosAsync();
-            return _todo;
+            var resultTodo = await todoRepository.GetAllTodosAsync();
+            return resultTodo;
         }
 
-        // GET api/values/5
+        // GET api/todo/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Todo>> GetTodoByIdAsync(int id)
         {
-            var _todo = await todoRepository.GetTodoByIdAsync(id);
-            if (_todo == null) return NotFound();
-            return _todo;
+            var resultTodo = await todoRepository.GetTodoByIdAsync(id);
+            if (resultTodo == null) return NotFound();
+            return resultTodo;
         }
 
-        // POST api/values
+        // POST api/todo
         [HttpPost]
         public async Task<ActionResult<Todo>> CreateTodoAsync([FromBody] Todo todo)
         {
@@ -45,11 +43,11 @@ namespace km_applicant_backend.Controllers
             {
                 return BadRequest();
             }
-            var _todo = await todoRepository.CreateTodoAsync(todo);
-            return CreatedAtAction(nameof(GetTodoByIdAsync), new { id = todo.id }, todo);
+            var resultTodo = await todoRepository.CreateTodoAsync(todo);
+            return CreatedAtAction(nameof(GetTodoByIdAsync), new { id = resultTodo.id }, resultTodo);
         }
 
-        // PUT api/values/5
+        // PUT api/todo/5
         [HttpPut("{id}")]
         public async Task<ActionResult<Todo>> UpdateTodoAsync(int id, [FromBody] Todo todo)
         {
@@ -58,49 +56,52 @@ namespace km_applicant_backend.Controllers
                 return BadRequest();
             }
             await todoRepository.UpdateTodoAsync(todo);
+            // because UpdateTodoAsync is just Task, will not return any value from function
             return todo;
         }
 
-        // DELETE api/values/5
+        // DELETE api/todo/5
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTodoAsync(int id)
         {
-            var _todo = await todoRepository.GetTodoByIdAsync(id);
-            if (_todo == null) return NotFound();
-            await todoRepository.DeleteTodoAsync(_todo.id);
+            var resultTodo = await todoRepository.GetTodoByIdAsync(id);
+            if (resultTodo == null) return NotFound();
+            await todoRepository.DeleteTodoAsync(resultTodo.id);
+            // because DeleteTodoAsync is just Task, will not return any value from function
             return Ok();
         }
 
-        // GET api/values/mark_done/5
+        // GET api/todo/mark_done/5
         [HttpGet("mark_done/{id}")]
         public async Task<ActionResult<Todo>> MarkTodoAsDoneAsync(int id)
         {
-            var _todo = await todoRepository.GetTodoByIdAsync(id);
-            if (_todo == null) return NotFound();
-            await todoRepository.MarkTodoAsDoneAsync(_todo);
-            return _todo;
+            var resultTodo = await todoRepository.GetTodoByIdAsync(id);
+            if (resultTodo == null) return NotFound();
+            await todoRepository.MarkTodoAsDoneAsync(resultTodo);
+            return resultTodo;
         }
 
-        // GET api/values/percentage/@id=1&@percentage=12
+        // GET api/todo/1/percentage=30
         [HttpGet("{id}/percentage={percentage}")]
         public async Task<ActionResult<Todo>> ChangeTodoPercentageAsync(int id, int percentage)
         {
-            var _todo = await todoRepository.GetTodoByIdAsync(id);
-            if (_todo == null) return NotFound();
+            var resultTodo = await todoRepository.GetTodoByIdAsync(id);
+            if (resultTodo == null) return NotFound();
             else if (percentage > 100) return BadRequest();
-            await todoRepository.ChangeTodoPercentageAsync(_todo, percentage);
-            return _todo;
+            await todoRepository.ChangeTodoPercentageAsync(resultTodo, percentage);
+            return resultTodo;
         }
-        /** Incoming feature 
-         *  0 = today
-         *  1 = next day, so on
-         */
-        // GET api/values/incoming/5
+
+        // GET api/todo/incoming/1
         [HttpGet("incoming/{days}")]
         public async Task<IEnumerable<Todo>> GetIncomingTodoAsync(double days)
         {
-            var _todo = await todoRepository.GetIncomingTodoAsync(days);
-            return _todo;
+            // Incoming feature
+            // days = 0 (today)
+            // days = 1 (next day)
+            // days = 2 (day after next day)
+            var resultTodo = await todoRepository.GetIncomingTodoAsync(days);
+            return resultTodo;
         }
     }
 }
