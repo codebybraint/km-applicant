@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "km-applicant-backend", "km-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "km-applicant-backend.test", "km-applicant-backend.test\km-applicant-backend.test.csproj", "{F94AC10E-F704-4614-9D59-5574D43B8141}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{4EAC392F-B2B7-41A8-9612-D4D79D9E7C0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F94AC10E-F704-4614-9D59-5574D43B8141}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F94AC10E-F704-4614-9D59-5574D43B8141}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F94AC10E-F704-4614-9D59-5574D43B8141}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EAC392F-B2B7-41A8-9612-D4D79D9E7C0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EAC392F-B2B7-41A8-9612-D4D79D9E7C0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EAC392F-B2B7-41A8-9612-D4D79D9E7C0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EAC392F-B2B7-41A8-9612-D4D79D9E7C0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

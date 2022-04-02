@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  km-applicant-backend:
+    image: ${DOCKER_REGISTRY-}kmapplicantbackend
+    build:
+      context: .
+      dockerfile: km-applicant-backend/Dockerfile

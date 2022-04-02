@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>km_applicant_backend</RootNamespace>
+    <DockerComposeProjectPath>../docker-compose.dcproj</DockerComposeProjectPath>
+    <UserSecretsId>ccd7f533-277d-4362-8f06-a6da9ada9beb</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
