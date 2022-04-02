@@ -403,3 +403,5 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+km-applicant-backend/Databases/todo.db-wal
+km-applicant-backend/Databases/todo.db-shm
